@@ -26,7 +26,8 @@ def get_number_data():
 
 
 get_number_data()
-
+def error_state_cov():
+	return state
 
 def get_state(state_param):
 	s_dict = {}
@@ -55,3 +56,4 @@ if __name__ == '__main__':
 	print(total(), type(total()))
 	print(get_state('Maharashtra'), type(get_state('Maharashtra')))
 	print(get_district('Karnataka', 'Yadgir'),"Yadgir")
+	print(get_state('Jammu and Kashmir'))

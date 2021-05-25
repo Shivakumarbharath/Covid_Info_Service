@@ -6,6 +6,15 @@ import json
 h = CoWinAPI()
 
 
+def error_state():
+    sut = []
+    for e in h.get_states()['states']:
+        sut.append(e['state_name'])
+    return sut
+
+
+
+
 def find_state(state, list):
     for e in list:
         if e['state_name'] == state:
@@ -46,10 +55,15 @@ def get_sessions(dist, state):
 
 
 if __name__ == '__main__':
-    state = input("State ?").capitalize()
-    dist = input("District?").capitalize()
-    y = get_sessions(dist, state)
-    print(len(json.dumps(y)))
-    print(type(y))
+    #state = input("State ?").capitalize()
+    #dist = input("District?").capitalize()
+    print(error_dist('Tamil Nadu'))
+    print(find_district('Chennai','Tamil Nadu'))
+    #y = get_sessions(dist, state)
+    #print(len(json.dumps(y)))
+    k=get_sessions('Chennai','Tamil Nadu')
+    #print(type(y))
+    print(error_state())
+    print(len(json.dumps(k)))
    # print(error_dist("Karnataka"))
    # print(error_dist('kdj'))

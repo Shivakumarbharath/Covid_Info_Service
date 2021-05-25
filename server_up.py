@@ -96,21 +96,31 @@ def handle_client(conn,addr):
 		elif choice==2:
 			get_number_data()
 			stateR=recieve(conn)
-			try:
-				res=get_state(stateR)
-			except KeyError:
-				send("Error",conn)
-				send(json.dumps(state),conn)
-			send(json.dumps(res),conn)
+			#print(state)
+			#try:
+			res=get_state(stateR)
+			if res=='Error':
+				send(res,conn)
+				send(json.dumps(error_state_cov()),conn)
+			else:
+				send(json.dumps(res),conn)
 		elif choice==3:
 			get_number_data()
 			state=recieve(conn)
 			district=recieve(conn)
+			
 			result=get_district(state,district)
+
 			if result=='Error':
 				send(result,conn)
-				names=dist_error(state,district)
-				send(json.dumps(names),conn)
+				try:
+					names=dist_error(state,district)
+					send(json.dumps(names),conn)
+				except KeyError:
+					send("state_Error",conn)
+					send(json.dumps(error_state_cov()),conn)
+			
+
 			else:
 				send(json.dumps(result),conn)
 		elif choice==4:
@@ -127,26 +137,32 @@ def handle_client(conn,addr):
 			
 			state=recieve(conn)
 			dist=recieve(conn)
+			#print(state,dist)
 			try:
 				msg=get_sessions(dist,state)
-#				print(msg)
+			#print(msg)
 				send(json.dumps(msg),conn)
-#				print(len(json.dumps(msg)))
+			#print(len(json.dumps(msg)))
 			except:
 				send("Error",conn)
 				msg=error_dist(state)
-				print(msg)
+			#	print(msg)
 				if msg!="Error":
 					send(json.dumps(msg),conn)
+					
+
 				else:
 					send(msg,conn)
-
+					send(json.dumps({'states':error_state()}),conn)
 		elif choice==8:
 			print(f"Disconnected With {addr}")
 			conn.close()
 			break
 		else:
-			pass
+			print("Wrong option selected Disconnecting")
+			print(f"Disconnected With {addr}")
+			conn.close()
+			break
 		print(f"[Data Transmitted to {addr} ]")
 
 def start_server():

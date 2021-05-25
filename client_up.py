@@ -1,3 +1,4 @@
+
 from socket import socket
 from socket import *
 import sys
@@ -15,8 +16,13 @@ DISCONNECT="DISCONNECT"
 
 
 # Create a client socket
-client=socket(AF_INET,SOCK_STREAM)
-client.connect((server_ip,PORT))
+try:
+	client=socket(AF_INET,SOCK_STREAM)
+	client.connect((server_ip,PORT))
+except ConnectionRefusedError:
+	print("Check the Server Ip and Ensure the server is Running")
+	exit(1)
+
 
 def recieve(conn):
 	msg_length=conn.recv(HEADER).decode(FORMAT)
@@ -59,6 +65,21 @@ def send(msg,conn):
 #print(r_msg)
 #send(DISCONNECT,client)
 #client.close()
+
+def change_case(state):
+	if ' and ' in state:
+
+		state_update=state.replace(' and ',' ').title().split()
+		#print(state_update)
+		state_update.insert(1,'and',)
+		#print(state_update)
+		state_update=' '.join(state_update)
+		#print(state_update)
+		state=state_update
+	else:
+		state=state.title()
+	return state
+
 connected=True
 while connected:
 	m=recieve(client)
@@ -69,7 +90,7 @@ while connected:
 		choice = int(choice)
 	except:
 		print(" Enter a Valid Option ")
-		client.close()
+		
 		connected=False
 		break
 	send(str(choice),client)
@@ -82,45 +103,73 @@ while connected:
 			print(e,' : ',r[e])
 	elif choice==2:
 
-		state=input("Enter the state ? ").capitalize()
+		state=input("Enter the state ? ")
+		state=change_case(state)
 		send(state,client)
 		m=recieve(client)
 		if m!="Error":
 			print('\n\n')
 			m=json.loads(m)
-			for e in m:
-				print(e, ': ',m[e])
+			try:
+				for e in m:
+					print(e, ': ',m[e])
+			except TypeError:
+				print("Check the name of the State or Union Teritory\nAnd Try Again")
 		else:
 			state_name=recieve(client)
-			for ele in json.loads(state_name).keys():
+			print("Select from the below States")
+			name=json.loads(state_name)
+			for ele in name.keys():
 				print(ele)
-			
+
+			s=input("Enter from  the above states :")
+			while s not in name.keys():
+				s=input("Enter from  the above states :")
+			name[s].pop('district')
+			print("\n\n")
+			for e_s in name[s]:
+				print(e_s,' : ',name[s][e_s])
+
 
 
 
 
 
 	elif choice==3:
-		state= input("Enter the State : ").capitalize()
+		state= input("Enter the State : ")
+		
+		dist=input("Enter the district : ").title()
+		state=change_case(state)
+		#print(state)
+		dist=change_case(dist)
 		send(state,client)
-		dist=input("Enter the district : ").capitalize()
 		send(dist,client)
 		res=recieve(client)
-		print(type(res))
+		#print(type(res))
 		print('\n\n')
 		if res=="Error":
+			
 			dists=recieve(client)
-			dists=json.loads(dists)
-			print("Select from the below Districts\n")
-			for e in dists.keys():
-				print(e)
+			if dists=="state_Error":
+				print("Check the name of State or Union Teritory\n\n")
+				s=json.loads(recieve(client))
+				for ele in s.keys():
+					print(ele)
+			else:
+				dists=json.loads(dists)
+				print("Select from the below Districts\n")
+				for e in dists.keys():
+					print(e)
 
-			new_dist=input("District : ")
-			while new_dist not in dists.keys():
-				new_dist=input("Please Enter a valid District: ")
-			print('\n\n')
-			for e in dists[new_dist]:
-				print(e,' : ',dists[new_dist][e])
+				new_dist=input("District : ")
+				new_dist=change_case(new_dist)
+				while new_dist not in dists.keys():
+					new_dist=input("Please Enter a valid District: ")
+					new_dist=change_case(new_dist)
+				print('\n\n')
+				for e in dists[new_dist]:
+					print(e,' : ',dists[new_dist][e])
+		
 		else:
 #			print(len(res))
 			res=json.loads(res)
@@ -129,7 +178,8 @@ while connected:
 
 
 	elif choice==4:
-		count=input("Enter Name of Country? ").capitalize()
+		count=input("Enter Name of Country? ").title()
+
 		send(count,client)
 		msg=recieve(client)
 		msg=json.loads(msg)
@@ -147,20 +197,26 @@ while connected:
 		t=recieve(client)
 		print('\n\n',t)
 	elif choice==7:
-		state=input("Name of the State :").capitalize()
+		state=input("Name of the State :")
+		state=change_case(state)
 		send(state,client)
-		dist=input("Name of the District : ").capitalize()
+		dist=input("Name of the District : ")
+		dist=change_case(dist)
 		send(dist,client)
 		m=recieve(client)
 		if m=="Error":
 			e_m=recieve(client)
-			print(e_m)
+			#print(e_m)
 			if e_m!="Error":
 				e_m=json.loads(e_m)
 				for ds in e_m['districts']:
-					print(ds)
+					print(ds['district_name'])
 			else:
 				print("Check the name of the State and Try again\n\n")
+				s=recieve(client)
+				s=json.loads(s)['states']
+				for e in s:
+					print(e)
 			
 		else:
 			print(type(m),len(m))
@@ -181,13 +237,14 @@ while connected:
 	elif choice==8:
 		print("Thank you for Using The Service")
 		send(str(choice),client)
-		client.close()
+		
 		break
 	else:
 		print("Enter the values in the Option")
-		client.close()
+		send(str(choice),client)
 		break
 
+client.close()
 
 
 
