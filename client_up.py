@@ -1,4 +1,4 @@
-
+from socket import gaierror
 from socket import socket
 from socket import *
 import sys
@@ -21,6 +21,9 @@ try:
 	client.connect((server_ip,PORT))
 except ConnectionRefusedError:
 	print("Check the Server Ip and Ensure the server is Running")
+	exit(1)
+except gaierror:
+	print('Enter the Valid Ip Address')
 	exit(1)
 
 

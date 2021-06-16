@@ -8,9 +8,7 @@ from Covid_India import *
 # total()
 
 from Covid_world import *
-
 # get_country(country)
-
 from cowin_data import *
 #get_sessions(dist,state)
 
@@ -77,16 +75,14 @@ def handle_client(conn,addr):
 		#	send("Thank You For using my service",conn)
 		#	print(f' {addr} {msg}')
 
-
+		# Introduction string
 		intro_str='\n\n\nWelcome to Covid Info Service\n\n\tChoose an Option:\n1.Covid cases in India\n2.Covid cases in Indian States\n3.Covid cases in Indian Districts\n4.Covid cases in World\n5.Vaccinations Doses Administrated in India\n6.Samples Tested so Far.\n7.Vaccination centers in Indian Districts\n8.Exit'
 
 		send(('-'*60)+intro_str,conn)
 		choice=recieve(conn)
+		# Check the option selected is valid
 		try:
 			choice=int(choice)
-		except BrokenPipeError:
-			connected=False
-			break
 		except:
 			send("Please enter a valid option\Try Again",conn)
 			connected=False
